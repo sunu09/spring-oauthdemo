@@ -2,23 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>-->
-    <title>Title</title>
-<!--    <meta name="description" content=""/>-->
-<!--    <meta name="viewport" content="width=device-width"/>-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
     <base href="/"/>
 </head>
 <body>
 <h1>Home Page</h1>
+
 <div id="unauthenticated" style="display: none">
     Sign in with GitHub: <a href="/oauth2/authorization/github">click here</a>
 </div>
 
 <div id="authenticated" style="display: none">
     Hello <span id="user"></span>!
+    <button onClick="logout()" class="btn btn-primary">Logout</button>
 </div>
 
+</body>
+
 <script>
+
+async function logout(){
+	let response = await fetch('/logout');
+	if (response.ok){
+		document.getElementById("unauthenticated").style.display = "block";
+		document.getElementById("authenticated").style.display = "none";
+	}
+	else{
+		return null;
+	}
+}
+
+
+
 
 async function checkLoggedIn(){
 	let response = await fetch('/user');
@@ -37,5 +55,5 @@ async function checkLoggedIn(){
 checkLoggedIn();
 
 </script>
-</body>
+
 </html>

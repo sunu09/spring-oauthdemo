@@ -8,13 +8,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.Map;
 
+@RestController
 @SpringBootApplication
 public class OauthdemoApplication extends WebSecurityConfigurerAdapter {
+
+	@GetMapping("/user")
+	public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
+		return Collections.singletonMap("name", principal.getAttribute("name"));
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -22,12 +30,15 @@ public class OauthdemoApplication extends WebSecurityConfigurerAdapter {
 				.antMatchers("/", "/error").permitAll().anyRequest().authenticated())
 				.exceptionHandling(e -> e
 						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-				.oauth2Login().defaultSuccessUrl("/", true);
-	}
-
-	@GetMapping("/user")
-	public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-		return Collections.singletonMap("name", principal.getAttribute("name"));
+				.oauth2Login().defaultSuccessUrl("/", true)
+				.and()
+				.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				.logoutSuccessUrl("/").deleteCookies("JSESSIONID")
+				.invalidateHttpSession(true)
+				.and()
+				.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				.logoutSuccessUrl("/").deleteCookies("JSESSIONID")
+				.invalidateHttpSession(true);;
 	}
 
 	public static void main(String[] args) {
